@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Generated data & models (large files — regenerate with pipeline)
+cleaned_data.csv
+X.pkl
+y.pkl
+X_resampled.pkl
+y_resampled.pkl
+X_train.pkl
+X_test.pkl
+y_train.pkl
+y_test.pkl
+scaler.pkl
+feature_names.pkl
+dummy_columns.pkl
+logreg_model.pkl
+rf_model.pkl
+eval_results.csv
+
+# EDA plots (regenerate with 02_eda.py)
+eda_tenure.png
+eda_charges.png
+eda_heatmap.png
+roc_curves.png
+shap_summary.png
+
+# Raw dataset (must be downloaded from Kaggle)
+WA_Fn-UseC_-Telco-Customer-Churn.csv
+*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
