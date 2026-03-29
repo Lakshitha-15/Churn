@@ -1,5 +1,5 @@
 """
-Module 10: SHAP Explanations
+Module 10: SHAP Explanations (FIXED for numpy arrays)
 ==============================
 Generates SHAP summary plot for the Random Forest model and prints the
 top 10 most influential features.
@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import shap
 import pandas as pd
+import numpy as np
 
 # ── Load model & test set ─────────────────────────────────────────────────────
 rf     = joblib.load("rf_model.pkl")
@@ -20,10 +21,21 @@ print("=" * 60)
 print("SHAP Explanations — Random Forest")
 print("=" * 60)
 
+# ── CRITICAL FIX: Convert numpy array to DataFrame ────────────────────────────
+# Load feature names (from 05_balance or 04_preprocess)
+try:
+    feature_names = joblib.load("feature_names_clean.pkl")
+except:
+    feature_names = joblib.load("feature_names.pkl")
+
+print(f"Loaded {len(feature_names)} feature names")
+X_test_df = pd.DataFrame(X_test, columns=feature_names)
+print(f"X_test converted to DataFrame: {X_test_df.shape}")
+
 # ── Compute SHAP values ───────────────────────────────────────────────────────
 # Use a sample of 500 records to keep runtime reasonable
-sample_size = min(500, len(X_test))
-X_sample = X_test.iloc[:sample_size]
+sample_size = min(500, len(X_test_df))
+X_sample = X_test_df.iloc[:sample_size]
 
 print(f"\nComputing SHAP values for {sample_size} test samples...")
 explainer   = shap.TreeExplainer(rf)
@@ -36,7 +48,7 @@ else:
     sv_class1 = shap_values
 
 # ── Summary plot ──────────────────────────────────────────────────────────────
-plt.figure()
+plt.figure(figsize=(12, 8))
 shap.summary_plot(sv_class1, X_sample, show=False, max_display=20)
 plt.title("SHAP Summary Plot — Churn Prediction (RF)", fontsize=13, fontweight="bold")
 plt.tight_layout()
@@ -45,7 +57,6 @@ plt.close()
 print("  ✔  Saved: shap_summary.png")
 
 # ── Top influencers ───────────────────────────────────────────────────────────
-import numpy as np
 mean_abs_shap = pd.Series(
     np.abs(sv_class1).mean(axis=0),
     index=X_sample.columns,
