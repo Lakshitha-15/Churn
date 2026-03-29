@@ -409,7 +409,7 @@ with tabs[2]:
     with col2:
         st.markdown("**Random Forest**")
         fig_rf, ax_rf = plt.subplots(figsize=(5, 4), facecolor='#0f172a')
-        sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Greens_r', 
+        sns.heatmap(cm_rf, annot=True, fmt='d', cmap='PuBu_r', 
                    cbar_kws={'shrink': 0.8}, ax=ax_rf,
                    square=True, linewidths=1, linecolor='white',
                    annot_kws={'size': 12, 'weight': 'bold'})
