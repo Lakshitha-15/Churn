@@ -42,6 +42,13 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] .stMarkdown { color: #e2e8f0; }
             
+.stTabs [data-baseweb="tab-list"] span { color: white !important; font-weight: 600; }
+.stTabs [data-baseweb="tab"] { color: white !important; }
+.stTabs [data-baseweb="tab-list"] { background: #1e293b !important; }
+.stTabs [data-baseweb="tab"][aria-selected="true"] span { 
+    color: #60a5fa !important; font-weight: 700; 
+}
+            
 [data-testid="stSidebar"] button {
     color: black !important;
     font-weight: 600;
