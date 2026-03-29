@@ -41,7 +41,15 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 }
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] .stMarkdown { color: #e2e8f0; }
-
+            
+[data-testid="stSidebar"] button {
+    color: black !important;
+    font-weight: 600;
+}
+[data-testid="stSidebar"] button[type="primary"] {
+    color: black !important;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+}
 /* Main area */
 .stApp { background: #0f172a; color: #e2e8f0; }
 
