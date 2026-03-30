@@ -14,6 +14,9 @@ import seaborn as sns
 import joblib
 import shap
 import os
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Page config
@@ -102,6 +105,22 @@ def load_artefacts():
     return rf, scaler, feature_names, dummy_cols
 
 rf, scaler, feature_names, dummy_cols = load_artefacts()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Load dataset for analysis (NEW for Feature 1)
+# ─────────────────────────────────────────────────────────────────────────────
+@st.cache_data
+def load_dataset():
+    if os.path.exists("WA_Fn-UseC_-Telco-Customer-Churn.csv"):
+        df = pd.read_csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+        df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
+        df["TotalCharges"].fillna(df["TotalCharges"].median(), inplace=True)
+        return df
+    elif os.path.exists("cleaned_data.csv"):
+        return pd.read_csv("cleaned_data.csv")
+    return None
+
+df_analysis = load_dataset()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Sidebar — user inputs
@@ -204,7 +223,132 @@ st.markdown("# 📞 Telco Customer Churn Predictor")
 st.markdown("*Powered by Random Forest + SHAP Explainability*")
 st.markdown("---")
 
-tabs = st.tabs(["🔮 Prediction", "📊 EDA", "📈 Model Performance", "ℹ️ About"])
+tabs = st.tabs(["📊 KPI Dashboard", "🔮 Prediction", "📊 EDA", "📈 Model Performance", "ℹ️ About"])
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 0 — KPI DASHBOARD
+# ═══════════════════════════════════════════════════════════════════════════════
+with tabs[0]:
+    st.markdown('<p class="section-header">📊 Key Performance Indicators</p>', unsafe_allow_html=True)
+    
+    if df_analysis is not None:
+        # Calculate KPIs
+        total_customers = len(df_analysis)
+        churn_count = (df_analysis['Churn'] == 'Yes').sum()
+        churn_rate = (churn_count / total_customers) * 100
+        avg_monthly_charges = df_analysis['MonthlyCharges'].mean()
+        avg_tenure = df_analysis['tenure'].mean()
+        avg_total_charges = df_analysis['TotalCharges'].mean()
+        
+        # Display KPIs in columns
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            st.metric(
+                label="👥 Total Customers",
+                value=f"{total_customers:,}"
+            )
+        
+        with col2:
+            st.metric(
+                label="📉 Churn Rate",
+                value=f"{churn_rate:.2f}%",
+                delta=f"{100-churn_rate:.2f}% Retained",
+                delta_color="inverse"
+            )
+        
+        with col3:
+            st.metric(
+                label="💰 Avg Monthly Charges",
+                value=f"${avg_monthly_charges:.2f}"
+            )
+        
+        with col4:
+            st.metric(
+                label="📅 Avg Tenure",
+                value=f"{avg_tenure:.1f} months"
+            )
+        
+        with col5:
+            st.metric(
+                label="💵 Avg Total Charges",
+                value=f"${avg_total_charges:.2f}"
+            )
+        
+        st.markdown("---")
+        
+        # Churn Distribution Visualizations
+        st.markdown('<p class="section-header">📊 Churn Distribution Overview</p>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Pie chart
+            churn_counts = df_analysis['Churn'].value_counts()
+            fig = go.Figure(data=[go.Pie(
+                labels=['Retained', 'Churned'],
+                values=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
+                hole=0.4,
+                marker_colors=['#2ecc71', '#e74c3c'],
+                textinfo='label+percent',
+                textfont_size=14
+            )])
+            fig.update_layout(
+                title="Customer Retention Status",
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0')
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            # Bar chart
+            fig = go.Figure(data=[
+                go.Bar(
+                    x=['Retained', 'Churned'],
+                    y=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
+                    marker_color=['#2ecc71', '#e74c3c'],
+                    text=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
+                    textposition='auto',
+                    textfont=dict(size=14, color='white')
+                )
+            ])
+            fig.update_layout(
+                title="Customer Count by Status",
+                xaxis_title="Status",
+                yaxis_title="Count",
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0')
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Revenue and Tenure Insights
+        st.markdown('<p class="section-header">💰 Revenue & Tenure Analysis</p>', unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.info(f"**Churned Customers:** {churn_count:,}")
+            st.info(f"**Retained Customers:** {total_customers - churn_count:,}")
+        
+        with col2:
+            revenue_lost = df_analysis[df_analysis['Churn'] == 'Yes']['MonthlyCharges'].sum()
+            st.warning(f"**Monthly Revenue at Risk:** ${revenue_lost:,.2f}")
+            annual_risk = revenue_lost * 12
+            st.warning(f"**Annual Revenue at Risk:** ${annual_risk:,.2f}")
+        
+        with col3:
+            avg_churn_tenure = df_analysis[df_analysis['Churn'] == 'Yes']['tenure'].mean()
+            avg_retain_tenure = df_analysis[df_analysis['Churn'] == 'No']['tenure'].mean()
+            st.success(f"**Avg Tenure (Churned):** {avg_churn_tenure:.1f} months")
+            st.success(f"**Avg Tenure (Retained):** {avg_retain_tenure:.1f} months")
+    else:
+        st.warning("Dataset not found. Upload 'WA_Fn-UseC_-Telco-Customer-Churn.csv' to see KPIs.")
 
 # ═══════════════════════════════════════════════════════════════════
 # TAB 1 — Prediction
