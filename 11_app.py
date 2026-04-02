@@ -38,6 +38,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Custom CSS (Enhanced for Feature 2)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,6 +150,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
 }
+            
 </style>
 """, unsafe_allow_html=True)
 
@@ -282,11 +284,33 @@ def build_input_df():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Main tabs (FEATURE 2: Added Distribution Analysis tab)
 # ═══════════════════════════════════════════════════════════════════════════════
+
+# Set specific text elements to white
+st.markdown("""
+<style>
+    /* BULLETPROOF METRIC WHITE VALUES */
+    .stMetric > label { color: #ffffff !important; }
+    .stMetric > div > div > div { color: #ffffff !important; }
+    [data-testid="stMetricLabel"] { color: #ffffff !important; }
+    
+    /* BULLETPROOF RED DELTA ONLY */
+    [data-testid="stMetricDelta"] { color: #ff4444 !important; }
+    
+    /* BULLETPROOF SECTION HEADERS WHITE */
+    .section-header { 
+        color: #ffffff !important !important;
+        -webkit-text-fill-color: #ffffff !important;
+        background: none !important;
+        background-clip: initial !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 tabs = st.tabs([
     "📊 KPI Dashboard", 
     "🔮 Prediction", 
     "📈 Feature Analysis", 
-    "📉 Distribution Analysis",  # NEW in Feature 2
+    "📉 Distribution Analysis",  
     "📊 EDA", 
     "🎯 Model Performance", 
     "ℹ️ About"
@@ -295,6 +319,7 @@ tabs = st.tabs([
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 0 — KPI DASHBOARD (Feature 1)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 with tabs[0]:
     st.markdown('<p class="section-header">📊 Key Performance Indicators</p>', unsafe_allow_html=True)
     
@@ -335,16 +360,19 @@ with tabs[0]:
                 labels=['Retained', 'Churned'],
                 values=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
                 hole=0.4,
-                marker_colors=['#2ecc71', '#e74c3c'],
+                marker_colors=["#74b0d1", "#09577b"],
                 textinfo='label+percent',
                 textfont_size=14
             )])
             fig.update_layout(
-                title="Customer Retention Status",
-                height=400,
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0')
+                title=dict(
+                text="Customer Retention Status",
+                font=dict(color="#ffffff", size=18)
+            ),
+            height=400,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(color="#ffffff")
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -353,20 +381,23 @@ with tabs[0]:
                 go.Bar(
                     x=['Retained', 'Churned'],
                     y=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
-                    marker_color=['#2ecc71', '#e74c3c'],
+                    marker_color=['#74b0d1', '#09577b'],
                     text=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
                     textposition='auto',
                     textfont=dict(size=14, color='white')
                 )
             ])
             fig.update_layout(
-                title="Customer Count by Status",
-                xaxis_title="Status",
-                yaxis_title="Count",
-                height=400,
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0')
+                title=dict(
+                text="Customer Count by Status",
+                font=dict(color="#ffffff", size=18)
+            ),
+            xaxis_title="Status",
+            yaxis_title="Count",
+            height=400,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='#ffffff')
             )
             st.plotly_chart(fig, use_container_width=True)
         
