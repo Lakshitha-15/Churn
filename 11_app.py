@@ -1141,16 +1141,5 @@ with tabs[6]:
     | 11 | App | This Streamlit UI (Enhanced) |
     | 12 | Runner | Master script to run all modules |
 
-    ### Run the full pipeline
-    ```bash
-    python 12_run_all.py
-    streamlit run 11_app.py
-    ```
-    
-    ### Interview Talking Points:
-    - "I implemented both **global and local explainability** using SHAP"
-    - "I built **interactive dashboards** with Plotly for better UX"
-    - "I created **risk-level gauges** that business users can understand"
-    - "I analyzed **feature distributions** to identify churn patterns"
-    - "I calculated **revenue at risk metrics** linking ML to business value"
+
     """)
