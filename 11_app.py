@@ -360,7 +360,7 @@ with tabs[0]:
                 labels=['Retained', 'Churned'],
                 values=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
                 hole=0.4,
-                marker_colors=["#74b0d1", "#09577b"],
+                marker_colors=["#8fd3f7", "#09577b"],
                 textinfo='label+percent',
                 textfont_size=14
             )])
@@ -381,7 +381,7 @@ with tabs[0]:
                 go.Bar(
                     x=['Retained', 'Churned'],
                     y=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
-                    marker_color=['#74b0d1', '#09577b'],
+                    marker_color=['#8fd3f7', '#0f6c97'],
                     text=[churn_counts.get('No', 0), churn_counts.get('Yes', 0)],
                     textposition='auto',
                     textfont=dict(size=14, color='white')
@@ -452,7 +452,7 @@ with tabs[1]:
                     value = churn_pct,
                     domain = {'x': [0, 1], 'y': [0, 1]},
                     title = {'text': "Churn Probability", 'font': {'size': 28, 'color': '#e2e8f0'}},
-                    delta = {'reference': 50, 'increasing': {'color': "#e74c3c"}, 'decreasing': {'color': "#2ecc71"}},
+                    delta = {'reference': 50, 'increasing': {'color': "#e74c3c"}, 'decreasing': {'color': "#09577b"}},
                     number = {'suffix': "%", 'font': {'size': 48, 'color': '#e2e8f0'}},
                     gauge = {
                         'axis': {'range': [None, 100], 'tickwidth': 2, 'tickcolor': "#64748b"},
@@ -670,7 +670,7 @@ with tabs[2]:
                 name='Retained',
                 x=churn_pct.index.astype(str),
                 y=churn_pct['No'] if 'No' in churn_pct.columns else churn_pct.iloc[:, 0],
-                marker_color='#2ecc71',
+                marker_color='#0f6c97',
                 text=[f'{v:.1f}%' for v in (churn_pct['No'] if 'No' in churn_pct.columns else churn_pct.iloc[:, 0])],
                 textposition='auto',
                 textfont=dict(size=12, color='white')
@@ -680,7 +680,7 @@ with tabs[2]:
                 name='Churned',
                 x=churn_pct.index.astype(str),
                 y=churn_pct['Yes'] if 'Yes' in churn_pct.columns else churn_pct.iloc[:, 1],
-                marker_color='#e74c3c',
+                marker_color='#8fd3f7',
                 text=[f'{v:.1f}%' for v in (churn_pct['Yes'] if 'Yes' in churn_pct.columns else churn_pct.iloc[:, 1])],
                 textposition='auto',
                 textfont=dict(size=12, color='white')
@@ -814,7 +814,7 @@ with tabs[3]:
                 barmode='overlay',
                 nbins=50,
                 title='Customer Tenure Distribution by Churn Status',
-                color_discrete_map={'Yes': '#e74c3c', 'No': '#2ecc71'},
+                color_discrete_map={'Yes': '#8fd3f7', 'No': '#0f6c97'},
                 opacity=0.7,
                 labels={'tenure': 'Tenure (months)', 'count': 'Number of Customers'}
             )
@@ -853,7 +853,7 @@ with tabs[3]:
                 y='MonthlyCharges',
                 color='Churn',
                 title='Monthly Charges Distribution by Churn Status',
-                color_discrete_map={'Yes': '#e74c3c', 'No': '#2ecc71'},
+                color_discrete_map={'Yes': '#8fd3f7', 'No': '#0f6c97'},
                 labels={'MonthlyCharges': 'Monthly Charges ($)', 'Churn': 'Customer Status'}
             )
             fig.update_layout(
@@ -893,7 +893,7 @@ with tabs[3]:
                 barmode='overlay',
                 nbins=50,
                 title='Total Charges Distribution by Churn Status',
-                color_discrete_map={'Yes': '#e74c3c', 'No': '#2ecc71'},
+                color_discrete_map={'Yes': '#8fd3f7', 'No': '#0f6c97'},
                 opacity=0.7,
                 labels={'TotalCharges': 'Total Charges ($)', 'count': 'Number of Customers'}
             )
@@ -930,7 +930,7 @@ with tabs[3]:
         
         # Tenure box plot
         for churn_status in ['No', 'Yes']:
-            color = '#2ecc71' if churn_status == 'No' else '#e74c3c'
+            color = '#0f6c97' if churn_status == 'No' else '#8fd3f7'
             fig.add_trace(
                 go.Box(
                     y=df_analysis[df_analysis['Churn'] == churn_status]['tenure'],
@@ -943,7 +943,7 @@ with tabs[3]:
         
         # Monthly Charges box plot
         for churn_status in ['No', 'Yes']:
-            color = '#2ecc71' if churn_status == 'No' else '#e74c3c'
+            color = "#0f6c97" if churn_status == 'No' else "#8fd3f7"
             fig.add_trace(
                 go.Box(
                     y=df_analysis[df_analysis['Churn'] == churn_status]['MonthlyCharges'],
@@ -956,7 +956,7 @@ with tabs[3]:
         
         # Total Charges box plot
         for churn_status in ['No', 'Yes']:
-            color = '#2ecc71' if churn_status == 'No' else '#e74c3c'
+            color = '#0f6c97' if churn_status == 'No' else '#8fd3f7'
             fig.add_trace(
                 go.Box(
                     y=df_analysis[df_analysis['Churn'] == churn_status]['TotalCharges'],

@@ -21,7 +21,7 @@ print("=" * 60)
 print(f"\nOverall Churn Rate : {churn_rate:.2%}")
 
 # ── Palette ───────────────────────────────────────────────────────────────────
-palette = {"Yes": "#e74c3c", "No": "#2ecc71"}
+palette = {"Yes": "#74b0d1", "No": "#09577b"}
 sns.set_theme(style="whitegrid", palette="muted")
 
 # ── Plot 1: Contract type vs Churn (saved as eda_tenure.png) ──────────────────
