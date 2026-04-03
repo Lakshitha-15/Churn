@@ -28,6 +28,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Page config
 # ─────────────────────────────────────────────────────────────────────────────
@@ -143,13 +144,6 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     margin: 10px 0;
 }
 
-/* Section headers */
-.section-header { 
-    font-size: 1.3rem; font-weight: 700; 
-    background: linear-gradient(90deg,#6366f1,#a78bfa);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
-}
             
 </style>
 """, unsafe_allow_html=True)
@@ -366,13 +360,22 @@ with tabs[0]:
             )])
             fig.update_layout(
                 title=dict(
-                text="Customer Retention Status",
-                font=dict(color="#ffffff", size=18)
-            ),
-            height=400,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="#ffffff")
+                    text="Customer Retention Status",
+                    font=dict(color="#ffffff", size=18)
+                ),
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color="#ffffff"),
+                xaxis=dict(
+                    title_font=dict(color='white'),
+                    tickfont=dict(color='white')
+                ),
+                yaxis=dict(
+                    title_font=dict(color='white'),
+                    tickfont=dict(color='white')
+                ),
+                legend=dict(font=dict(color='white'))
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -389,15 +392,16 @@ with tabs[0]:
             ])
             fig.update_layout(
                 title=dict(
-                text="Customer Count by Status",
-                font=dict(color="#ffffff", size=18)
-            ),
-            xaxis_title="Status",
-            yaxis_title="Count",
-            height=400,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#ffffff')
+                    text="Customer Count by Status",
+                    font=dict(color="#ffffff", size=18)
+                ),
+                xaxis=dict(title_font=dict(color='white'), tickfont=dict(color='white')),
+                yaxis=dict(title_font=dict(color='white'), tickfont=dict(color='white')),
+                legend=dict(font=dict(color='white')),
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#ffffff')
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -452,18 +456,18 @@ with tabs[1]:
                     value = churn_pct,
                     domain = {'x': [0, 1], 'y': [0, 1]},
                     title = {'text': "Churn Probability", 'font': {'size': 28, 'color': '#e2e8f0'}},
-                    delta = {'reference': 50, 'increasing': {'color': "#e74c3c"}, 'decreasing': {'color': "#09577b"}},
+                    delta = {'reference': 50, 'increasing': {'color': "#e74c3c"}, 'decreasing': {'color': "#31a51f"}},
                     number = {'suffix': "%", 'font': {'size': 48, 'color': '#e2e8f0'}},
                     gauge = {
                         'axis': {'range': [None, 100], 'tickwidth': 2, 'tickcolor': "#64748b"},
-                        'bar': {'color': "#1e40af"},
-                        'bgcolor': "rgba(30, 58, 95, 0.3)",
+                        'bar': {'color': "#c0c1c4"},
+                        'bgcolor': "rgba(30, 58, 95, 0.8)",
                         'borderwidth': 2,
                         'bordercolor': "#64748b",
                         'steps': [
-                            {'range': [0, 30], 'color': 'rgba(39, 174, 96, 0.3)'},
-                            {'range': [30, 70], 'color': 'rgba(243, 156, 18, 0.3)'},
-                            {'range': [70, 100], 'color': 'rgba(231, 76, 60, 0.3)'}
+                            {'range': [0, 30], 'color': 'rgba(39, 174, 96, 1)'},
+                            {'range': [30, 70], 'color': 'rgba(243, 156, 18, 1)'},
+                            {'range': [70, 100], 'color': 'rgba(231, 76, 60, 1)'}
                         ],
                         'threshold': {
                             'line': {'color': "white", 'width': 4},
@@ -584,29 +588,34 @@ with tabs[1]:
                 
                 # Get SHAP values for churn class (class 1)
                 if isinstance(shap_vals, list):
-                    shap_vals_churn = shap_vals[1]
+                    shap_vals_churn = shap_vals[1][0]
                 else:
-                    shap_vals_churn = shap_vals[:, :, 1]
+                    shap_vals_churn = shap_vals[0, :, 1] if len(shap_vals.shape) == 3 else shap_vals[0]
                 
+                # 2. FIX: Ensure base_value is a SCALAR float
+                base_value = explainer.expected_value
+                if isinstance(base_value, (list, np.ndarray)):
+                    # If it's a list/array [prob_0, prob_1], take index 1
+                    base_value = base_value[1] if len(base_value) > 1 else base_value[0]
+
                 # Create waterfall plot
-                fig_shap, ax_shap = plt.subplots(figsize=(12, 7), facecolor='#0f172a')
-                shap.waterfall_plot(
-                    shap.Explanation(
-                        values=shap_vals_churn[0],
-                        base_values=explainer.expected_value[1] if isinstance(explainer.expected_value, list) 
-                                    else explainer.expected_value,
-                        data=input_row.iloc[0],
-                        feature_names=input_row.columns.tolist()
-                    ),
-                    max_display=15,
-                    show=False
+                fig_shap, ax_shap = plt.subplots(figsize=(12, 7), facecolor='#0f172a',)
+                
+                # 3. Create Explanation object with guaranteed scalars/1D arrays
+                exp = shap.Explanation(
+                    values=shap_vals_churn, # 1D array of features
+                    base_values=float(base_value), # Force to scalar float
+                    data=input_row.iloc[0].values, # 1D array of feature values
+                    feature_names=input_row.columns.tolist()
                 )
+
+                shap.waterfall_plot(exp, max_display=15, show=False)
                 ax_shap.set_facecolor('#0f172a')
                 # Update text colors
                 for text in ax_shap.texts:
                     text.set_color('#e2e8f0')
                 for spine in ax_shap.spines.values():
-                    spine.set_edgecolor('#64748b')
+                    spine.set_edgecolor('#e2e8f0')
                 ax_shap.tick_params(colors='#e2e8f0')
                 st.pyplot(fig_shap)
                 plt.close()
@@ -688,14 +697,15 @@ with tabs[2]:
             
             fig.update_layout(
                 title=title,
-                xaxis_title=feature_name,
-                yaxis_title='Percentage (%)',
+                title_font_color='white',
+                xaxis=dict(title=feature_name,title_font=dict(color='#ffffff'), tickfont=dict(color='white')),
+                yaxis=dict(title='Percentage (%)', title_font=dict(color='#ffffff'), tickfont=dict(color='white')),
                 barmode='stack',
                 height=400,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0'),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                font=dict(color='#ffffff'),
+                legend=dict(font=dict(color='#ffffff'),orientation="h", yanchor="bottom", y=1.05, xanchor="right", x=1)
             )
             
             return fig
@@ -822,7 +832,11 @@ with tabs[3]:
                 height=450,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0')
+                font=dict(color='#ffffff'),
+                title_font_color='#ffffff',
+                xaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                yaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                legend=dict(font=dict(color='#ffffff'))
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -860,8 +874,11 @@ with tabs[3]:
                 height=450,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0'),
-                showlegend=False
+                font=dict(color='#ffffff'),
+                title_font_color='#ffffff',
+                xaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                yaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                legend=dict(font=dict(color='#ffffff'))
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -901,7 +918,11 @@ with tabs[3]:
                 height=450,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='#e2e8f0')
+                font=dict(color='#ffffff'),
+                title_font_color='#ffffff',
+                xaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                yaxis=dict(title_font=dict(color='#ffffff'), tickfont=dict(color='#ffffff')),
+                legend=dict(font=dict(color='#ffffff'))
             )
             st.plotly_chart(fig, use_container_width=True)
         
@@ -970,10 +991,12 @@ with tabs[3]:
         fig.update_layout(
             height=500,
             showlegend=True,
-            legend=dict(title="Churn Status", x=0.5, y=-0.15, orientation='h'),
+            legend=dict(font=dict(color='white'),title="Churn Status", x=0.5, y=-0.15, orientation='h'),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#e2e8f0')
+            font=dict(color='#ffffff'),
+            xaxis=dict(title_font=dict(color='white'), tickfont=dict(color='white')),
+            yaxis=dict(title_font=dict(color='white'), tickfont=dict(color='white'))
         )
         
         fig.update_xaxes(showgrid=False)
@@ -1033,11 +1056,11 @@ with tabs[4]:
         for title, path in available.items():
             st.markdown(f"#### {title}")
             if title in ["Contract Type vs Churn", "Correlation Heatmap"]:
-                st.image(path, width=800)
+                st.image(path, width=650)
             elif title == 'SHAP Summary (Global)':
                 st.image(path, width=800)
             else:
-                st.image(path, use_column_width=True)
+                st.image(path, width="stretch")
             st.markdown("---")
     else:
         st.warning("No EDA plots found. Run `python 02_eda.py` first.")
@@ -1133,7 +1156,7 @@ with tabs[5]:
 
     st.markdown("### 📈 ROC Curves Comparison")
     if os.path.exists("roc_curves.png"):
-        st.image("roc_curves.png", caption="ROC Curves", width=700)
+        st.image("roc_curves.png", caption="ROC Curves", width=650)
     else:
         st.info("Run `python 09_eval.py` for ROC curves")
 
