@@ -301,11 +301,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 tabs = st.tabs([
-    "📊 KPI Dashboard", 
-    "🔮 Prediction", 
-    "📈 Feature Analysis", 
-    "📉 Distribution Analysis",  
-    "📊 EDA", 
+    "📊 KPI Dashboard",
+    "🔍 EDA",
+    "📈 Distribution Analysis",
+    "🧠 Feature Analysis",  
+    "🔮 Prediction",
     "🎯 Model Performance", 
     "ℹ️ About"
 ])
@@ -431,9 +431,9 @@ with tabs[0]:
         st.warning("Dataset not found. Upload 'WA_Fn-UseC_-Telco-Customer-Churn.csv' to see KPIs.")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — PREDICTION (FEATURE 2: Enhanced with Risk Gauge & Individual SHAP)
+# TAB 4 — PREDICTION (FEATURE 5: Enhanced with Risk Gauge & Individual SHAP)
 # ═══════════════════════════════════════════════════════════════════════════════
-with tabs[1]:
+with tabs[4]:
     st.markdown('<p class="section-header">🔮 Churn Risk Prediction</p>', unsafe_allow_html=True)
     
     if predict_btn:
@@ -661,9 +661,9 @@ with tabs[1]:
         st.info("👈 Adjust customer details in the sidebar and click '🔮 Predict Churn Risk'")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — FEATURE ANALYSIS (Feature 1)
+# TAB 3 — FEATURE ANALYSIS (Feature 4)
 # ═══════════════════════════════════════════════════════════════════════════════
-with tabs[2]:
+with tabs[3]:
     st.markdown('<p class="section-header">📈 Feature-wise Churn Analysis</p>', unsafe_allow_html=True)
     
     if df_analysis is not None:
@@ -804,9 +804,9 @@ with tabs[2]:
         st.warning("Dataset not available for feature analysis.")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — DISTRIBUTION ANALYSIS (NEW IN FEATURE 2!)
+# TAB 2 — DISTRIBUTION ANALYSIS (NEW IN FEATURE 3!)
 # ═══════════════════════════════════════════════════════════════════════════════
-with tabs[3]:
+with tabs[2]:
     st.markdown('<p class="section-header">📉 Distribution Analysis</p>', unsafe_allow_html=True)
     st.write("Understand how key metrics are distributed across churned and retained customers")
     
@@ -1039,9 +1039,9 @@ with tabs[3]:
         st.warning("Dataset not available for distribution analysis.")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — EDA (Original)
+# TAB 1 — EDA (Original)
 # ═══════════════════════════════════════════════════════════════════════════════
-with tabs[4]:
+with tabs[1]:
     st.markdown("### Exploratory Data Analysis")
 
     eda_plots = {
@@ -1178,22 +1178,5 @@ with tabs[6]:
     | Imbalance Handling | SMOTE |
     | Explainability | SHAP TreeExplainer (Global + Individual) |
     | UI Framework | Streamlit + Plotly |
-
-    ### Pipeline Modules
-    | # | Module | Description |
-    |---|---|---|
-    | 01 | Setup | Install packages, load dataset |
-    | 02 | EDA | Visualisations & insights |
-    | 03 | Clean | Null handling, encoding target |
-    | 04 | Preprocess | One-hot encoding, scaling, feature engineering |
-    | 05 | Balance | SMOTE oversampling |
-    | 06 | Split | 80/20 stratified train-test split |
-    | 07 | LogReg | Logistic Regression training |
-    | 08 | RF | Random Forest training |
-    | 09 | Eval | Model comparison & ROC curves |
-    | 10 | SHAP | SHAP global explanations |
-    | 11 | App | This Streamlit UI (Enhanced) |
-    | 12 | Runner | Master script to run all modules |
-
-
+                
     """)
